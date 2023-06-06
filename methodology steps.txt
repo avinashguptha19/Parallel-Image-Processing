@@ -1,0 +1,12 @@
+PROCEDURE:
+Step 1: We now open the koala.jpg which is to be sent by this client to the server for image processing. The functions required to be performed on this image being sent are crop and edge detection.
+Step 2: We read this opened image and then send it to the server.
+Step 3: We create a server.py file and import socket, threading, io and PIL libraries and corresponding PIL functions.
+Step 4: Here we bind with the ADDR tuple containing the address and then we define two methods which handle_client() and start() respectively.
+Step 5: In the start() we listen to new connections using listen() and then we accept a new client connection using accept().We create and start a new thread and set handle_client as the target and this basically passes the new connection to the handle_client() method. We also print the number of active connections within this method. 
+Step 6: In the handle_client() we print the address of the active connection. We receive and accept the data packets sent by the client. While we are receiving the data packets we write it in a file. After the writing and accepting has completed, we send a marker indicating the completion.
+Step 7: We now perform the image processing operation of crop present in the PIL library thereby dividing the image into two halves.
+Step 8: After the completion of the processing we save each of the processed image in the methods of handle_client1() and handle_client2 and then send them to client1 and client2 in the form of data packets and once the sending has been completed we send an image_completed marker indicating the completion.
+Step 9:In client1.py and client2.py we have client1 and client2. In each of these files we have imported socket,io and PIL libraries.Now, client1 and client2 perform the edge detection operation (on their respective images) present the ImageFilter module of PIL library and then each of them back to the server.
+Step 10: The server receives the images from client1 and client2 and then merges them.
+Step 11: We close all the connections.

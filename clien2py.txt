@@ -1,0 +1,22 @@
+client2.py
+Step 1: In the client1.py file, we import socket,import io, from PIL we import Image and ImageFilter and then define HEADER,PORT as well as FORMAT. We even specify the server ip address using SERVER = "192.168.1.5".
+Code snippet:
+HEADER = 64
+PORT = 5050
+FORMAT = 'utf-8'
+Step 2: We create an ADDR constant where we pass the SERVER and PORT as arguments in the form of tuple.
+Step 3: We create a server using socket Mojo and socket class. Within the socket class we pass two arguments socket.AF_1NET for  IP  and socket.SOCK_STREAM for TCP. Thus, we create an IP and TCP socket naming it client.
+Step 4: We now use the connect() function to connect the client2 with the server. We pass ADDR tuple as an argument which contains the server address.
+Step 5: We save the file received from the server  using  file=io.BytesIO(). We now accept data packets using  recv_data= client2.recv(2048) where recv() function accepts the data from the client and 2048 is the buffer size.Under a while function using recv_data as the condition we write the recv_data in our file using file.write(recv_data). We then use  recv_data= client2.recv(2048) to receive new data from the server. Now here if recv_data is equal to the bytes of image completed using image_chunk==b"%IMAGE_COMPLETED%" then we break. It means that the entire data is received and we no longer require to wait.
+Step 6: We now open the image saved in file using Image() function and storing it in image. After this we perform edge detection functionality on the opened image. Next we save the processed image as client2_image.jpeg.
+Code snippet:
+im= image.filter(ImageFilter.FIND_EDGES)
+im.save("client2_image.jpeg", format='JPEG')
+Step 7: We now open the client2_image.jpg file to be sent by this client to the server using files = open('client2_image.jpg', 'rb') and read it as image_data = file.read(2048). Under a while function using image_data as the condition we use  client2.send(image_data) where we send our data to the server and then we read the image_data in our files using files.read(image_data). Here client2 is the client socket object. After this we send the marker b'%IMAGE_COMPLETED%' as an indication that the image has been completely sent and close the files and client2.
+
+
+
+
+
+
+

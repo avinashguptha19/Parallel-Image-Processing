@@ -1,0 +1,16 @@
+ client.py
+Step 1: In the client.py file, we import socket and then define HEADER,PORT as well as FORMAT. We even specify the server ip address using SERVER = "192.168.1.5".
+Code snippet:
+HEADER = 64
+PORT = 5050
+FORMAT = 'utf-8'
+Step 2: We create an ADDR constant where we pass the SERVER and PORT as arguments in the form of tuple.
+Step 3: We create a client using socket Mojo and socket class. Within the socket class we pass two arguments socket.AF_1NET for  IP  and socket.SOCK_STREAM for TCP. Thus, we create an IP and TCP socket naming it client.
+Step 4: We now use the connect() function to connect the client with the server. We pass ADDR tuple as an argument which contains the server address.
+Step 5: We now open the koala.jpg file to be sent by this client to the server using file = open('koala.jpg', 'rb') and read it as image_data = file.read(2048). Under a while function using image_data as the condition we use  client.send(image_data) where we send our data to the server and then we read the image_data in our files using files.read(image_data). Here client is the client socket object.
+Step 6: We send the marker b'%IMAGE_COMPLETED%' as an indication that the image has been completely read and sent to the server. 
+
+
+
+
+

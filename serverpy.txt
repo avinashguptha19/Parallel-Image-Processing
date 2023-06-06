@@ -1,0 +1,100 @@
+PROCEDURE
+
+Server.py
+Step 1:  In the server.py file, we import socket , io, threading and PIL libraries and then define HEADER,PORT as well as FORMAT.
+Code snippet:
+HEADER = 64
+PORT = 5050
+FORMAT = 'utf-8'
+Step 2:  We store the system IP address in SERVER variable using socket.gethostbyname(socket.gethostname()) where gethostbyname() is a function in the socket module that returns the IP address by accepting the hostname argument.
+Step 3: We create an ADDR constant where we pass the SERVER and PORT as arguments in the form of tuple.
+Step 4: We create a server using socket Mojo and socket class. Within the socket class we pass two arguments socket.AF_1NET for  IP  and socket.SOCK_STREAM for TCP. Thus, we create an IP and TCP socket naming it server.
+Step 5: We now use bind() function present inside the server module to bind the server socket with a specific address present in the ADDR tuple.
+Step 6: We create a start() method for server starting and listening. We use the listen() function the server module to listen for new connections. For a new connection, using server.accept() we store the socket object in client_socket and the client address (port number and ip address) in client_address.
+Step 7: We now pass the new connections to handle_client(),handle_client1() and handle_client2() methods using thread. Hence, we create new threads using thread = threading.Thread(target=handle_client, args=(client_socket,client_address)), thread1 = threading.Thread(target=handle_client1, args=(client_socket1, client_address1)) and thread2 = threading.Thread(target=handle_client2, args=(client_socket2, client_address2)), here we set the targets as handle_client(),handle_client1() and handle_client2() methods with client_socket,client_socket1, client_socket2, client_address, client_address1 and client_address2 passed as arguments in the Thread() functions. After creating the threads, we start it using thread.start(), thread1.start() and thread2.start(). We also print the number of active connections in the terminal.
+Step 8: Outside of the handle_client(),handle_client1(), handle_client2() and start() methods we call the start() method before which we print a server is starting message in the terminal.
+Step 9: Inside the handle_client() method we print client_address for the new connection. We save the file received from the client  using  file=io.BytesIO(). We now accept data packets using  image_chunk= client_socket.recv(2048) where recv() function accepts the data from the client and 2048 is the buffer size.
+Step 10: Under a while function using image_chunk as the condition we write the image_chunk in our file using file.write(image_chunk). We then use  image_chunk= client_socket.recv(2048) to receive new data from the client. Now here if image_chunk is equal to the bytes of image completed using image_chunk==b"%IMAGE_COMPLETED%" then we break. It means that the entire data is received and we no longer require to wait.
+Step 11: We now open the received image and perform the image processing technique of cropping. After this we save the cropped images.
+Code snippet:
+image = Image.open(file)
+w,h=image.size
+l=0
+t=0
+r=w/2
+b=h
+im=image.crop((l,t,r,b))
+im.save("s_image1.jpeg", format='JPEG')
+l=w/2
+t=0
+r=w
+b=h
+im1=image.crop((l,t,r,b))
+im1.save("s_image2.jpeg", format='JPEG')
+
+Step 12: We open the saved images in handle_client1(client_socket1, client_address1) and handle_client2(client_socket2, client_address2) methods and then read each of them  using  image_data=files.read(2048) where read() function includes 2048 as the buffer size meaning we read 2048 bytes of data at a time. Under a while function using image_data as the condition in each method, we use  client_socket1.send(image_data) and client_socket2.send(image_data) where we send both of our cropped data to the client1 and client2 and then we read the image_data in our files using files.read(image_data) under each method.
+
+Step 13: We close the file in each method and send the marker b'%IMAGE_COMPLETED%' as an indication that the image has been completely sent. 
+
+Code snippet:
+handle_client1:
+def handle_client1(client_socket1, client_address1):
+    print(f"[NEW CONNECTION] {client_address1} connected.")
+    files = open('s_image1.jpeg', 'rb')
+    image_data = files.read(2048)
+    while image_data:
+        client_socket1.send(image_data)
+        image_data = files.read(2048)
+    client_socket1.send(b'%IMAGE_COMPLETED%')
+    files.close()
+
+handle_client2:
+def handle_client2(client_socket2,client_address2):
+    print(f"[NEW CONNECTION] {client_address2} connected.")
+    files = open('s_image2.jpeg', 'rb')
+    image_data = files.read(2048)
+    while image_data:
+        client_socket2.send(image_data)
+        image_data = files.read(2048)
+    client_socket2.send(b'%IMAGE_COMPLETED%')
+    files.close()
+
+Step 14: Under each method of handle_client1() and handle_client2(), we open the client1_edit.jpeg received from client1 and client2_edit.jpeg received from client2 as file respectively. In each method, We now accept data packets using recv_data= client_socket1.recv(2048) and recv_data= client_socket2.recv(2048) where recv() function accepts the data from the client and 2048 is the buffer size. Under a while function using recv_data as the condition for each method, we write the recv_data in our file using file.write(recv_data). We then use  recv_data= client_socket1.recv(2048)and recv_data= client_socket2.recv(2048) to receive new data from client1 and client2 respectively. Now here under each method, if recv_data is equal to the bytes of image completed using image_chunk==b"%IMAGE_COMPLETED%" then we break. It means that the entire data is received and we no longer require to wait.
+
+Code snippet:
+handle_client1:
+with open('client1_edit.jpeg', 'wb') as file:
+        recv_data = client_socket1.recv(2048)
+        while recv_data:
+             file.write(recv_data)
+             recv_data = client_socket1.recv(2048)
+             if recv_data == b"%IMAGE_COMPLETED%":
+                break
+handle_client2:
+with open('client2_edit.jpeg', 'wb') as file:
+        recv_data = client_socket2.recv(2048)
+        while recv_data:
+             file.write(recv_data)
+             recv_data = client_socket2.recv(2048)
+             if recv_data == b"%IMAGE_COMPLETED%":
+                break
+
+Step 15: We now merge the client1_edit.jpeg and client2_edit.jpeg into m_image.jpeg using paste() function.
+
+Code snippet:
+image1=Image.open('client1_edit.jpeg')
+image2=Image.open('client2_edit.jpeg')
+i1_size=image1.size
+i2_size=image2.size
+merge_image=Image.new('RGB',(2*i1_size[0],i1_size[1]),(250,250,250))
+merge_image.paste(image1,(0,0))
+merge_image.paste(image2,(i1_size[0],0))
+merge_image.save("m_image.jpeg", format='JPEG')
+
+Step 16: We close the connections and opened files.
+
+
+
+
+
+
